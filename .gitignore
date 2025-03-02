@@ -1,0 +1,16 @@
+client.ipdb
+curves.iobj
+curves.lib
+client.iobj
+client.pdb
+curves.exp
+curves.ipdb
+curves.pdb
+curves.txt
+circles.txt
+sort_circles.txt
+curves/curves/Release
+curves/curves/x64
+client/client/Release
+client/client/x64
+.vs

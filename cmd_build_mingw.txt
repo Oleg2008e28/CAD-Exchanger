@@ -1,0 +1,4 @@
+﻿c++ -shared -fopenmp -lpthread -o curves.lib curves.cpp  pch.cpp dllmain.cpp
+c++ -shared -fopenmp -lpthread -o curves.dll curves.cpp  pch.cpp dllmain.cpp
+Скопировать curves.h и curves.dll в папку приложения.
+c++ main.cpp -o main.exe -L. -lcurves
