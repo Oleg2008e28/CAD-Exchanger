@@ -47,24 +47,10 @@ double Ellipse::getRY() {
     return rY;
 }
 Point3D Ellipse::getPoint3D(double t) {
-    if (cos(t) == 0) {
-        if (sin(t) > 0) return { 0 + centreX, rY + centreY, 0 };
-        else if (sin(t) < 0) return { 0 + centreX, -rY + centreY, 0 };
-        else return { 0 + centreX, 0 + centreY, 0 };
-    }
-    else {
-        double A = atan((rX * sin(t)) / (rY * cos(t)));
-        return { rX * cos(A) + centreX, rY * sin(A) + centreY, 0 };
-    }
+    return { rX * cos(t) + centreX, rY * sin(t) + centreY, 0 };
 }
 Vector3D Ellipse::getVector3D(double t) {
-    if (cos(t) == 0) {
-        return{ -rX,0,0 };
-    }
-    else {
-        double A = atan((rX * sin(t)) / (rY * cos(t)));
-        return { rX * -sin(A), rY * cos(A), 0 };
-    }
+    return { -1 * rX * sin(t), rY * cos(t), 0 };
 }
 void Ellipse::print(std::ostream& out, double t) {
     Vector3D v = this->getVector3D(t);
