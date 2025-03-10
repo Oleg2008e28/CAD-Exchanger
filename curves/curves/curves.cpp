@@ -1,38 +1,29 @@
 ﻿#include "pch.h"
 #include "curves.h"
+#include <sstream>
 using namespace curve;
 //Базовый класс Curve
-Curve::Curve() {
-    centreX = 0;
-    centreY = 0;
-    identifier = CurveType::NONE;
+Curve::Curve(double CentreX, double CentreY) {
+    centreX = CentreX;
+    centreY = CentreY;
 }
-Curve::Curve(CurveType Identifier) {
-    centreX = 0;
-    centreY = 0;
-    identifier = Identifier;
-}
-void Curve::setCentrX(double X) {
+void Curve::setCentreX(double X) {
     centreX = X;
 }
-void Curve::setCentrY(double Y) {
+void Curve::setCentreY(double Y) {
     centreY = Y;
 }
-double Curve::getCentrX() {
+double Curve::getCentreX() const {
     return centreX;
 }
-double Curve::getCentrY() {
+double Curve::getCentreY() const {
     return centreY;
 }
-Curve::CurveType Curve::getIdentifier() {
-    return identifier;
-}
+Curve::~Curve() {}
 //Производный класс Ellipse
-Ellipse::Ellipse(double CentreX, double CentreY, double RX, double RY) : Curve(Curve::CurveType::ELLIPS) {
+Ellipse::Ellipse(double CentreX, double CentreY, double RX, double RY) : Curve(CentreX, CentreY) {
     rX = RX;
     rY = RY;
-    setCentrX(CentreX);
-    setCentrY(CentreY);
 };
 void Ellipse::setRX(double RX) {
     rX = RX;
@@ -40,149 +31,125 @@ void Ellipse::setRX(double RX) {
 void Ellipse::setRY(double RY) {
     rY = RY;
 }
-double Ellipse::getRX() {
+double Ellipse::getRX() const {
     return rX;
 }
-double Ellipse::getRY() {
+double Ellipse::getRY() const {
     return rY;
 }
-Point3D Ellipse::getPoint3D(double t) {
+Point3D Ellipse::getPoint3D(double t) const {
     return { rX * cos(t) + centreX, rY * sin(t) + centreY, 0 };
 }
-Vector3D Ellipse::getVector3D(double t) {
+Vector3D Ellipse::getVector3D(double t) const {
     return { -1 * rX * sin(t), rY * cos(t), 0 };
 }
-void Ellipse::print(std::ostream& out, double t) {
-    Vector3D v = this->getVector3D(t);
-    Point3D p = this->getPoint3D(t);
-    std::string s;
-    out.setf(std::ios_base::left);
-    out.width(10);
-    out << "Ellipse:";
-    s = "center ( " + std::to_string(this->centreX) + " : " + std::to_string(this->centreY) + " )";
-    out.width(45);
-    out << s;
-    s = "Radius by X = " + std::to_string(this->getRX());
-    out.width(30);
-    out << s;
-    s = "Radius by Y = " + std::to_string(this->getRY());
-    out.width(30);
-    out << s;
-    s = "3D point ( " + std::to_string(p.x) + " : " + std::to_string(p.y) + " : " + std::to_string(p.z) + " )";
-    out.width(60);
-    out << s;
-    s = "3D vector ( " + std::to_string(v.x) + " : " + std::to_string(v.y) + " : " + std::to_string(v.z) + " )";
-    out.width(60);
-    out << s << std::endl;
+void Ellipse::print(double t) const {
+    std::wstring ws(120, ' ');
+    ws.insert(0, L" | Эллипс");
+    ws.insert(15, L"|  ( " + toString(centreX) + L" : " + toString(centreY) + L" )");
+    ws.insert(38, L"|  " + toString(rX));
+    ws.insert(51, L"|  " + toString(rY));
+    ws.insert(64, L"|");
+    ws.insert(77, L"|");
+    Point3D p = getPoint3D(t);
+    ws.insert(90, L"|  ( " + toString(p.x) + L" : " + toString(p.y) + L" : " + toString(p.z) + L" )");
+    Vector3D v = getVector3D(t);
+    ws.insert(121, L"|  ( " + toString(v.x) + L" : " + toString(v.y) + L" : " + toString(v.z) + L" )");
+    ws.insert(153, L"|");
+    ws.erase(154);
+    std::wcout << ws << std::endl;
 }
+Ellipse::~Ellipse() {}
 //Производный класс Circle
-Circle::Circle(double CentreX, double CentreY, double R) : Curve(Curve::CurveType::CIRCLE) {
+Circle::Circle(double CentreX, double CentreY, double R) : Curve(CentreX, CentreY) {
     r = R;
-    setCentrX(CentreX);
-    setCentrY(CentreY);
+    centreX = CentreX;
+    centreY = CentreY;
 };
 void Circle::setR(double R) {
     r = R;
 }
-double Circle::getR() {
+double Circle::getR() const {
     return r;
 }
-Point3D Circle::getPoint3D(double t) {
+Point3D Circle::getPoint3D(double t) const {
     double x = r * cos(t) + centreX;
     double y = r * sin(t) + centreY;
     return { x,y,0 };
 }
-Vector3D Circle::getVector3D(double t) {
+Vector3D Circle::getVector3D(double t) const {
     double x = -sin(t) * r;
     double y = cos(t) * r;
     return { x,y,0 };
 }
-bool Circle::operator > (const Circle& E1) {
-    return this->r > E1.r;
+void Circle::print(double t) const {
+    std::wstring ws(120, ' ');
+    ws.insert(0, L" | Окружность");
+    ws.insert(15, L"|  ( " + toString(centreX) + L" : " + toString(centreY) + L" )");
+    ws.insert(38, L"|");
+    ws.insert(51, L"|");
+    ws.insert(64, L"|  " + toString(r));
+    ws.insert(77, L"|");
+    Point3D p = getPoint3D(t);
+    ws.insert(90, L"|  ( " + toString(p.x) + L" : " + toString(p.y) + L" : " + toString(p.z) + L" )");
+    Vector3D v = getVector3D(t);
+    ws.insert(121, L"|  ( " + toString(v.x) + L" : " + toString(v.y) + L" : " + toString(v.z) + L" )");
+    ws.insert(153, L"|");
+    ws.erase(154);
+    std::wcout << ws << std::endl;
 }
-bool Circle::operator < (const Circle& E1) {
-    return this->r < E1.r;
-}
-bool Circle::operator == (const Circle& E1) {
-    return this->r == E1.r;
-}
-void Circle::print(std::ostream& out, double t) {
-    Vector3D v = this->getVector3D(t);
-    Point3D p = this->getPoint3D(t);
-    std::string s;
-    out.setf(std::ios_base::left);
-    out.width(10);
-    out << "Circle:";
-    s = "center ( " + std::to_string(this->centreX) + " : " + std::to_string(this->centreY) + " )";
-    out.width(45);
-    out << s;
-    s = "Radius = " + std::to_string(this->getR());
-    out.width(60);
-    out << s;
-    s = "3D point ( " + std::to_string(p.x) + " : " + std::to_string(p.y) + " : " + std::to_string(p.z) + " )";
-    out.width(60);
-    out << s;
-    s = "3D vector ( " + std::to_string(v.x) + " : " + std::to_string(v.y) + " : " + std::to_string(v.z) + " )";
-    out.width(60);
-    out << s << std::endl;
-}
+Circle::~Circle() {}
 //Производный класс Helixe
-Helixe::Helixe(double CentreX, double CentreY, double R, double Step) : Curve(Curve::CurveType::HELIXE) {
+Helixe::Helixe(double CentreX, double CentreY, double R, double Step) : Curve(CentreX, CentreY) {
     r = R;
     step = Step;
-    setCentrX(CentreX);
-    setCentrY(CentreY);
+    centreX = CentreX;
+    centreY = CentreY;
 };
 void Helixe::setR(double R) {
     r = R;
 }
-double Helixe::getR() {
+double Helixe::getR() const {
     return r;
 }
 void Helixe::setStep(double Step) {
     step = Step;
 }
-double Helixe::getStep() {
+double Helixe::getStep() const {
     return step;
 }
-Point3D Helixe::getPoint3D(double t) {
+Point3D Helixe::getPoint3D(double t) const {
     double x = r * cos(t) + centreX;
     double y = r * sin(t) + centreY;
     double z = (step * t) / (2 * M_PI);
     return { x,y,z };
 }
-Vector3D Helixe::getVector3D(double t) {
+Vector3D Helixe::getVector3D(double t) const {
     double x = -sin(t) * r;
     double y = cos(t) * r;
     double z = step / (2 * M_PI);
     return { x,y,z };
 }
-void Helixe::print(std::ostream& out, double t) {
-    Vector3D v = this->getVector3D(t);
-    Point3D p = this->getPoint3D(t);
-    std::string s;
-    out.setf(std::ios_base::left);
-    out.width(10);
-    out << "Helixe:";
-    s = "center ( " + std::to_string(this->centreX) + " : " + std::to_string(this->centreY) + " )";
-    out.width(45);
-    out << s;
-    s = "Radius = " + std::to_string(this->getR());
-    out.width(30);
-    out << s;
-    s = "Step = " + std::to_string(this->getStep());
-    out.width(30);
-    out << s;
-    s = "3D point ( " + std::to_string(p.x) + " : " + std::to_string(p.y) + " : " + std::to_string(p.z) + " )";
-    out.width(60);
-    out << s;
-    s = "3D vector ( " + std::to_string(v.x) + " : " + std::to_string(v.y) + " : " + std::to_string(v.z) + " )";
-    out.width(60);
-    out << s << std::endl;
+void Helixe::print(double t) const {
+    std::wstring ws(120, ' ');
+    ws.insert(0, L" | Спираль");
+    ws.insert(15, L"|  ( " + toString(centreX) + L" : " + toString(centreY) + L" )");
+    ws.insert(38, L"|");
+    ws.insert(51, L"|");
+    ws.insert(64, L"|  " + toString(r));
+    ws.insert(77, L"|  " + toString(step));
+    Point3D p = getPoint3D(t);
+    ws.insert(90, L"|  ( " + toString(p.x) + L" : " + toString(p.y) + L" : " + toString(p.z) + L" )");
+    Vector3D v = getVector3D(t);
+    ws.insert(121, L"|  ( " + toString(v.x) + L" : " + toString(v.y) + L" : " + toString(v.z) + L" )");
+    ws.insert(153, L"|");
+    ws.erase(154);
+    std::wcout << ws << std::endl;
+
 }
+Helixe::~Helixe() {}
 //Дополнительные функции
 void randomCurveVector(std::vector<std::shared_ptr<curve::Curve>> & V, int n) {
-    srand(time(NULL));
     V.clear();
     V.reserve(n);
     for (auto i = 0; i < n; i++) {
@@ -193,7 +160,7 @@ void randomCurveVector(std::vector<std::shared_ptr<curve::Curve>> & V, int n) {
             CY = double(rand()) / 1000;
             RX = double(rand()) / 1000;
             RY = double(rand()) / 1000;
-            V.push_back(std::make_shared<curve::Ellipse>(10, 15, 15, 20));
+            V.push_back(std::make_shared<curve::Ellipse>(CX, CY, RX, RY));
         }
         else if (y == 2) {
             double CX, CY, R;
@@ -212,24 +179,20 @@ void randomCurveVector(std::vector<std::shared_ptr<curve::Curve>> & V, int n) {
         }
     }
 }
-void foundCircleCurve( std::vector<std::shared_ptr<curve::Curve>> const& V1, std::vector<std::shared_ptr<curve::Circle>>& V2) {
-    int counterCircle = 0;
-    for (auto i = 0; i < V1.size(); i++) {
-        if (V1[i]->getIdentifier() == curve::Curve::CurveType::CIRCLE) counterCircle++;
-    }
-    V2.clear();
-    V2.reserve(counterCircle);
-    for (auto i = 0; i < V1.size(); i++) {
-        if (V1[i]->getIdentifier() == curve::Curve::CurveType::CIRCLE) {
-            V2.push_back(std::dynamic_pointer_cast<curve::Circle>(V1[i]));
+void findCircle( std::vector<std::shared_ptr<curve::Curve>> const& Vin, std::vector<std::shared_ptr<curve::Circle>>& Vout) {
+    Vout.clear();
+    for (auto a : Vin) {
+        std::shared_ptr<Circle> ptr = std::dynamic_pointer_cast<curve::Circle>(a);
+        if (ptr) {
+            Vout.push_back(ptr);
         }
     }
 }
-bool comp(std::shared_ptr<curve::Circle> V1, std::shared_ptr<curve::Circle> V2) {
-    return *V1 < *V2;
-}
 void sortCircleByIncreasingRadius(std::vector<std::shared_ptr<curve::Circle>>& V) {
-    std::sort(V.begin(), V.end(), comp);                //Сортировка в порядке возрастания радиусов.
+    std::sort(V.begin(), V.end(), [] 
+    (const std::shared_ptr<curve::Circle>& ptrC1, const std::shared_ptr<curve::Circle>& ptrC2) {
+        return (ptrC1->getR() < ptrC2->getR());
+    });                                                                                             //Сортировка в порядке возрастания радиусов.
 }
 double sumRadius(std::vector<std::shared_ptr<curve::Circle>> const& V) {
     double sum = 0;
@@ -246,32 +209,11 @@ double sumRadius(std::vector<std::shared_ptr<curve::Circle>> const& V) {
     }
     return sum;
 }
-void output3DDateToFile(std::vector<std::shared_ptr<curve::Curve>> const& V, double angleRad, std::string fileName) {
-    std::ofstream outFile;
-    outFile.open(fileName);
-    if (!outFile) {
-        std::wcerr << L"Не удалось открыть файл ";
-        exit(1);
-    }
-    for (auto a : V) {
-        a->print(outFile, angleRad);
-    }
-    outFile.close();
-}
-void output3DDateToFile(std::vector<std::shared_ptr<curve::Circle>> const& V, double angleRad, std::string fileName) {
-    std::ofstream outFile;
-    outFile.open(fileName);
-    if (!outFile) {
-        std::wcerr << L"Не удалось открыть файл ";
-        exit(1);
-    }
-    for (auto a : V) {
-        a->print(outFile, angleRad);
-    }
-    outFile << "\n-------------------------------------------------------------------------"
-        "---------------------------------------------------------------------------"
-        "---------------------------------------------------------------------------"
-        << std::endl;
-    outFile << "\nSum of the radii of the circles = " << sumRadius(V);
-    outFile.close();
+std::wstring toString(double num) {
+    std::wstringstream wss;
+    std::wstring ws;
+    wss.precision(4);
+    wss << num;
+    wss >> ws;
+    return ws;
 }
